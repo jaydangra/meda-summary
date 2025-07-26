@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Guide: Maharashtra Green Hydrogen Tender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Shades of Purple, Pink, Orange, and Blue (from new design) -->
+    <!-- Application Structure Plan: A single-page application designed as a strategic guide. It features a main content area with distinct sections: 
+        1. Overview: High-level statistics and key targets.
+        2. Incentives: Detailed breakdown of financial and operational benefits with supporting charts.
+        3. Compliance: Critical financial hurdles, post-commissioning mandates (including LVA and production targets visualized), and a project timeline.
+        4. Bidding & Selection: Explanation of the selection parameter formula with illustrative charts.
+        5. Interactive Calculator: A tool for bidders to simulate their bid parameters and get estimated results.
+        A sticky top navigation bar allows for quick jumps between these sections. This structure is chosen to provide a comprehensive yet easily navigable experience, guiding users from understanding the tender's core to practical bid formulation and clarification. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Overall Targets/Capacity -> Goal: Inform -> Viz: Large number stat cards -> Interaction: None -> Justification: Immediate impact and clear communication of key figures -> Library/Method: HTML/Tailwind.
+        - Report Info: CAPEX Subsidy -> Goal: Inform/Compare -> Viz: Doughnut Chart -> Interaction: Hover tooltip -> Justification: Visually compares subsidy percentages for different unit types -> Library/Method: Chart.js.
+        - Report Info: Operational Cost Waivers -> Goal: Inform/Compare -> Viz: Horizontal Bar Chart -> Interaction: Hover tooltip -> Justification: Clearly shows exemption percentages and durations for different operational costs -> Library/Method: Chart.js.
+        - Report Info: Setup Cost Exemptions -> Goal: Inform -> Viz: Text-based list with large percentage highlight -> Interaction: None -> Justification: Emphasizes the 100% exemption on specific taxes/duties -> Library/Method: HTML/Tailwind.
+        - Report Info: Selection Parameter Formula -> Goal: Explain Process -> Viz: Flow Diagram (HTML/CSS) + Doughnut Chart -> Interaction: None for flow, hover for chart -> Justification: Breaks down the complex selection logic into a clear sequential flow and visually represents weightage -> Library/Method: HTML/Tailwind, Chart.js.
+        - Report Info: Financial Quotient -> Goal: Explain/Illustrate -> Viz: Bar Chart (example values) -> Interaction: Hover tooltip -> Justification: Shows how different normalized subsidy quotes translate to financial quotient scores -> Library/Method: Chart.js.
+        - Report Info: Performance Quotient -> Goal: Explain/Illustrate -> Viz: Line Chart (example values) -> Interaction: Hover tooltip -> Justification: Demonstrates the relationship between SEC and performance score visually -> Library/Method: Chart.js.
+        - Report Info: Financial Hurdles -> Goal: Inform -> Viz: List with key values -> Interaction: None -> Justification: Presents critical financial requirements concisely -> Library/Method: HTML/Tailwind.
+        - Report Info: Post-Commissioning Mandates (LVA, Domestic Sales, Production) -> Goal: Inform/Illustrate -> Viz: Horizontal Bar Chart -> Interaction: Hover tooltip -> Justification: Clearly shows minimum percentage requirements for ongoing compliance -> Library/Method: Chart.js.
+        - Report Info: Project Timeline -> Goal: Inform Sequence -> Viz: Vertical Timeline (HTML/CSS) -> Interaction: None -> Justification: Provides a clear chronological overview of key project milestones and deadlines -> Library/Method: HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #665191; /* Purple from new palette */
+            border-bottom-color: #665191;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .accordion-button {
+            transition: background-color 0.3s;
+        }
+        .accordion-button.open {
+            background-color: #e6e0f0; /* Lighter shade of purple for open accordion */
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .btn-primary {
+            background-color: #665191; /* Purple from new palette */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #5a4782; /* Darker purple on hover */
+            transform: translateY(-2px);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Max width for charts */
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px; /* Base height for charts */
+            max-height: 400px; /* Max height for charts */
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px; /* Slightly taller on larger screens */
+            }
+        }
+        .table-hover tbody tr:hover {
+            background-color: #fdf6f9; /* Light pink from new palette */
+        }
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        .llm-output {
+            background-color: #fdf6f9; /* Light pink from new palette */
+            border: 1px solid #f9e0e7; /* Lighter pink border */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: #a05195; /* Magenta from new palette */
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            font-size: 0.9rem;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #a05195; /* Magenta from new palette */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* New Design Specific Styling */
+        .stat-card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #665191, #f95d6a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .flow-arrow {
+            font-size: 2rem;
+            color: #665191;
+            margin: 0 1rem;
+        }
+        .flow-box {
+            border: 2px solid #a05195;
+            background-color: #fdf6f9;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #d45087;
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -2.5rem;
+            top: 0.25rem;
+            height: 20px;
+            width: 20px;
+            background-color: #f95d6a;
+            border: 4px solid #fff;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12 md:mb-16">
+            <h1 class="text-4xl md:text-6xl font-black mb-4 gradient-text">Unlocking Maharashtra's Green Hydrogen Future</h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">A Strategic Consultant's Guide to the MEDA Green Hydrogen Tender (Tranche-I)</p>
+        </header>
+
+        <section id="overview" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-10">Tender Overview: Key Figures</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-600 mb-10">This tender aims to accelerate Green Hydrogen production in Maharashtra. Here are the core targets and capacities for this first tranche.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="stat-card">
+                    <h3 class="text-5xl font-extrabold text-[#003f5c]">500 kTPA</h3>
+                    <p class="text-gray-500 mt-2">State's 2030 GH2 Production Target</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-5xl font-extrabold text-[#665191]">130 kTPA</h3>
+                    <p class="text-gray-500 mt-2">Total Capacity in This Tender (Tranche-I)</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-5xl font-extrabold text-[#d45087]">₹8,500+ Cr</h3>
+                    <p class="text-gray-500 mt-2">Estimated Total Policy Support Value</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="incentives" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-10">The Opportunity: A Lucrative Incentive Structure</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-600 mb-10">Maharashtra offers a comprehensive incentive package to support Green Hydrogen projects. These benefits significantly reduce both capital and operational costs, making your investment more attractive.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="stat-card text-center">
+                    <h3 class="text-2xl font-bold text-[#2f4b7c] mb-4">CAPEX Subsidy</h3>
+                    <div class="chart-container">
+                        <canvas id="capexChart"></canvas>
+                    </div>
+                    <p class="text-gray-600 mt-4">Direct capital support for both GH2 and associated in-state RE projects based on your unit type.</p>
+                </div>
+                <div class="stat-card text-center">
+                    <h3 class="text-2xl font-bold text-[#a05195] mb-4">Operational Cost Waivers</h3>
+                    <div class="chart-container">
+                        <canvas id="opexChart"></canvas>
+                    </div>
+                    <p class="text-gray-600 mt-4">Significant long-term exemptions on key operational expenses like electricity duty and transmission charges.</p>
+                </div>
+                <div class="stat-card text-center md:col-span-2 lg:col-span-1">
+                    <h3 class="text-2xl font-bold text-[#ff7c43] mb-4">Setup Cost Exemptions</h3>
+                    <div class="p-4 flex flex-col items-center justify-center h-64">
+                        <p class="text-6xl font-black text-[#ff7c43]">100%</p>
+                        <p class="text-lg text-gray-600 mt-2">Exemption on:</p>
+                        <ul class="text-left mt-4 space-y-2">
+                            <li class="flex items-center"><span class="text-green-500 mr-2">✔</span> Stamp Duty</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-2">✔</span> Local Body Tax (LBT)</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-2">✔</span> Non-Agriculture Land Tax</li>
+                        </ul>
+                    </div>
+                    <p class="text-gray-600 mt-4">Reduces upfront investment burden on land acquisition and project establishment.</p>
+                </div>
+            </div>
+            
+        </section>
+
+        <section id="compliance" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-10">Key Compliance & Performance Criteria</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-600 mb-10">Adhering to strict performance, compliance, and financial criteria is crucial for eligibility and continued incentive disbursement. These clauses ensure project viability and alignment with policy goals.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="stat-card">
+                    <h3 class="text-2xl font-bold mb-4 text-[#d45087]">Critical Financial Hurdles 💰</h3>
+                    <ul class="space-y-4 text-lg">
+                        <li class="flex justify-between"><span>Net Worth:</span> <span class="font-bold text-right">₹60 Cr / kTPA</span></li>
+                        <li class="flex justify-between"><span>EMD Guarantee:</span> <span class="font-bold text-right">₹0.75 Cr / kTPA</span></li>
+                        <li class="flex justify-between"><span>Commissioning PBG:</span> <span class="font-bold text-right">₹1.75 Cr / kTPA</span></li>
+                        <li class="flex justify-between"><span>Operational PBG:</span> <span class="font-bold text-right">1% of Project FCI</span></li>
+                    </ul>
+                    <p class="text-sm text-gray-500 mt-4">Substantial upfront financial strength and guarantees are mandatory for participation and project security.</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3 class="text-2xl font-bold mb-4 text-[#003f5c]">Strict Post-Commissioning Mandates ⚙️</h3>
+                    <div class="chart-container">
+                        <canvas id="lvaChart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-4">Failure to meet Local Value Addition (LVA), Specific Energy Consumption (SEC), minimum production, or domestic sales targets annually can lead to reduced or zero incentives. Continuous monitoring is key.</p>
+                </div>
+
+                <div class="stat-card md:col-span-2">
+                    <h3 class="text-2xl font-bold mb-6 text-center text-[#ff7c43]">Project Timeline & Milestones 🗓️</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="font-bold text-lg">0 Months: Letter of Award (LoA)</h4>
+                            <p class="text-gray-600">The official start of your project. The commissioning period begins from this date.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="font-bold text-lg">6 Months: Land Milestone</h4>
+                            <p class="text-gray-600">Submission of documents demonstrating possession of 25% of the required land for your project.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="font-bold text-lg">12 Months: Full Land & Clearances</h4>
+                            <p class="text-gray-600">Demonstrate 100% land possession and submit all critical environmental, statutory, and connectivity clearances.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background-color: #003f5c;"></div>
+                            <h4 class="font-bold text-lg">36 Months: Scheduled Commissioning Date (SCOD)</h4>
+                            <p class="text-gray-600">The deadline for full project capacity commissioning. Delays beyond this point will incur significant penalties.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+
+        <section id="bidding" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl md:text-4xl font-bold text-green-700 mb-6 text-center">The Winning Formula: Decoding the Selection Criteria</h2>
+            <p class="max-w-3xl mx-auto text-center text-gray-600 mb-12">Success isn't about the lowest bid. It's a strategic balance of financial efficiency and technical performance. Your rank depends on a single, crucial score: the Selection Parameter.</p>
+            
+            <div class="flex flex-col md:flex-row items-center justify-center mb-12 text-center">
+                <div class="p-4 rounded-lg flow-box">
+                    <p class="font-bold text-lg">Financial Quotient</p>
+                    <p class="text-sm">(Normalized Subsidy)</p>
+                </div>
+                <p class="font-bold text-2xl mx-4 text-[#d45087]">+</p>
+                <div class="p-4 rounded-lg flow-box">
+                    <p class="font-bold text-lg">Performance Quotient</p>
+                    <p class="text-sm">(Electrolyzer SEC)</p>
+                </div>
+                <p class="flow-arrow hidden md:block">→</p>
+                <div class="p-4 rounded-lg bg-[#003f5c] text-white mt-4 md:mt-0">
+                    <p class="font-bold text-lg">Final Selection Parameter</p>
+                    <p class="text-sm">(Your Rank)</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold text-center mb-4 text-[#665191]">Financial Quotient (80% Weight)</h3>
+                    <div class="chart-container">
+                        <canvas id="financialQuotientChart"></canvas>
+                    </div>
+                    <p class="text-gray-600 mt-4 text-center">This isn't just your subsidy ask. It's your requested subsidy normalized by your project's capital cost (FCI). A cost-efficient project can win even with a higher subsidy demand.</p>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-center mb-4 text-[#f95d6a]">Performance Quotient (20% Weight)</h3>
+                    <div class="chart-container">
+                        <canvas id="performanceQuotientChart"></canvas>
+                    </div>
+                    <p class="text-gray-600 mt-4 text-center">A direct score for your electrolyzer's efficiency. Lower Specific Energy Consumption (SEC) means a higher score and a stronger bid, significantly impacting your overall selection parameter.</p>
+                </div>
+            </div>
+            
+            
+        </section>
+
+        <section id="calculator" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-green-700 mb-6 text-center">Interactive Bid Calculator</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-600 mb-10">Use this tool to simulate your bid. Enter your project's parameters to estimate your Selection Parameter and potential subsidy allocation. This is for estimation purposes only and assumes your bid is the lowest financial bid for calculating the Selection Parameter.</p>
+            <div class="card p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div>
+                        <label for="calc-projectType" class="block mb-2 text-sm font-medium text-gray-700">Project Type</label>
+                        <select id="calc-projectType" class="w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                            <option value="anchor">Anchor Unit (Bucket 1)</option>
+                            <option value="experimental">Experimental Anchor Unit (Bucket 2)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="calc-ghCapacity" class="block mb-2 text-sm font-medium text-gray-700">GH Capacity (kTPA)</label>
+                        <input type="number" id="calc-ghCapacity" class="w-full p-2 border border-gray-300 rounded-md" value="50">
+                    </div>
+                    <div>
+                        <label for="calc-reShare" class="block mb-2 text-sm font-medium text-gray-700">% RE Inside State</label>
+                        <input type="number" id="calc-reShare" class="w-full p-2 border border-gray-300 rounded-md" value="100">
+                    </div>
+                    <div>
+                        <label for="calc-fciGh" class="block mb-2 text-sm font-medium text-gray-700">FCI in GH (Cr/kTPA)</label>
+                        <input type="number" id="calc-fciGh" class="w-full p-2 border border-gray-300 rounded-md" value="65">
+                    </div>
+                    <div>
+                        <label for="calc-fciRe" class="block mb-2 text-sm font-medium text-gray-700">FCI in RE (Cr/kTPA)</label>
+                        <input type="number" id="calc-fciRe" class="w-full p-2 border border-gray-300 rounded-md" value="159">
+                    </div>
+                    <div>
+                        <label for="calc-subsidyDemanded" class="block mb-2 text-sm font-medium text-gray-700">Subsidy Demanded (%)</label>
+                        <input type="number" id="calc-subsidyDemanded" class="w-full p-2 border border-gray-300 rounded-md" value="85">
+                    </div>
+                    <div>
+                        <label for="calc-secQuoted" class="block mb-2 text-sm font-medium text-gray-700">Quoted SEC (kWh/kg H₂)</label>
+                        <input type="number" id="calc-secQuoted" class="w-full p-2 border border-gray-300 rounded-md" value="50.5">
+                    </div>
+                </div>
+                <div class="text-center mt-8">
+                    <button id="calculate-btn" class="btn-primary">Calculate Bid Score</button>
+                </div>
+                <div id="calculator-results" class="mt-8 border-t pt-6 hidden">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Estimated Results</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-gray-700">
+                        <div class="flex justify-between p-2 bg-gray-50 rounded"><span>Normalized Subsidy Quote:</span><span id="res-normalized" class="font-semibold"></span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded"><span>Performance Quotient:</span><span id="res-performance" class="font-semibold"></span></div>
+                        <div class="flex justify-between p-2 bg-green-50 rounded border border-green-200"><span>Estimated Selection Parameter:</span><span id="res-selection" class="font-bold text-green-700"></span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded"><span>Quoted FCI (per kTPA):</span><span id="res-fci" class="font-semibold"></span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded"><span>Total Applicable Subsidy:</span><span id="res-total-subsidy" class="font-semibold"></span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded"><span>Allocated CAPEX Subsidy:</span><span id="res-capex-subs-calc" class="font-semibold"></span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded"><span>Allocated Non-CAPEX Subsidy:</span><span id="res-noncapex-subs-calc" class="font-semibold"></span></div>
+                    </div>
+                    <div class="mt-8 text-center space-y-4 md:space-y-0 md:flex md:justify-center md:gap-4">
+                        
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <section id="consultation" class="text-center bg-gradient-to-r from-[#665191] to-[#003f5c] text-white rounded-2xl p-8 md:p-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Your Strategic Advantage</h2>
+            <p class="max-w-3xl mx-auto text-lg mb-8 opacity-90">This tender is more than a submission; it's a strategic competition. Expert guidance is not a luxury—it's essential for crafting a winning bid.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+                <div class="bg-white/10 p-6 rounded-lg">
+                    <h4 class="font-bold text-xl mb-2">Strategic Bid Formulation</h4>
+                    <p class="opacity-80">Optimize the complex balance between your FCI, subsidy demand, and SEC to maximize your selection score.</p>
+                </div>
+                <div class="bg-white/10 p-6 rounded-lg">
+                    <h4 class="font-bold text-xl mb-2">Financial Modeling</h4>
+                    <p class="opacity-80">Develop precise cash flow projections and FCI calculations to ensure your bid is both competitive and profitable.</p>
+                </div>
+                <div class="bg-white/10 p-6 rounded-lg">
+                    <h4 class="font-bold text-xl mb-2">Risk Mitigation</h4>
+                    <p class="opacity-80">Identify and create contingency plans for the financial, technical, and compliance risks embedded in the RfS.</p>
+                </div>
+                <div class="bg-white/10 p-6 rounded-lg">
+                    <h4 class="font-bold text-xl mb-2">Compliance & Documentation</h4>
+                    <p class="opacity-80">Ensure a flawless, fully compliant submission package to pass scrutiny and avoid disqualification.</p>
+                </div>
+            </div>
+            <a href="https://wa.me/+91940525677" class="mt-10 inline-block bg-white text-[#003f5c] font-bold py-3 px-8 rounded-full text-lg hover:bg-gray-200 transition-colors">Contact us - Jay Dangra</a>
+        </section>
+
+    </div>
+
+    <footer class="text-center p-4 text-gray-500 text-sm">
+        <p>This infographic is a summary and strategic analysis based on RfS No.: GHC/RfS/2025-26/01. It is intended for informational purposes and does not constitute legal or financial advice. Bidders should refer to the official RfS document for all terms and conditions.</p>
+        <p>&copy; 2025 Strategic Consulting Services. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Removed apiKey and callGeminiAPI function as LLM features are removed.
+
+            // Data for LLM prompts and calculator (retained from previous version)
+            const incentivesData = [
+                { title: 'Capital Expenditure (CAPEX) Subsidy', content: '<strong>Anchor Unit:</strong> 30% of FCI. <br><strong>Experimental Unit:</strong> 15% of FCI. <br>Applies to both the GH project and associated in-state RE project. The project must be fully funded by a single developer and located within Maharashtra to claim this subsidy.' },
+                { title: 'Electricity Duty Exemption', content: '<strong>100% exemption</strong> on electricity consumed from the RE project for GH production for a period of <strong>15 years</strong>.' },
+                { title: 'Transmission & Wheeling Charges Exemption', content: '<strong>50% exemption</strong> on intra-state transmission and wheeling charges for electricity sourced from the RE project for a period of <strong>20 years</strong>.' },
+                { title: 'Stamp Duty & Land Tax Exemption', content: '<strong>100% exemption</strong> on stamp duty, Local Body Tax, and Non-Agriculture (NA) land tax for land acquired for the GH unit and co-located RE projects.' },
+                { title: 'Revenue Sharing from Excess RE', content: 'If the associated RE plant is commissioned early or generates excess power, a portion of the revenue from selling this power (equal to the CAPEX subsidy %) will be deducted from the GHP\'s payable subsidy.' }
+            ];
+
+            const complianceData = {
+                'Performance': `
+                    <h4 class="font-semibold text-lg mb-3 text-green-800">Performance Criteria (Clause 12)</h4>
+                    <ul class="space-y-4">
+                        <li><strong>Minimum Domestic Sales:</strong> Anchor Units must sell at least 50% of production domestically; Experimental Units must sell 100%. Failure results in no incentive for that year.</li>
+                        <li><strong>Specific Energy Consumption (SEC):</strong> Must be ≤ 56 kWh/kg of H₂. Performance degradation is capped at 1% annually and 10% over 10 years. If SEC exceeds 56 kWh/kg, no subsidy is disbursed for that year.</li>
+                        <li><strong>Local Value Addition (LVA):</strong> A minimum of 55% LVA in the GH Plant is mandatory. Failure to meet this at CoD disqualifies the plant from all benefits.</li>
+                    </ul>`,
+                'Timelines': `
+                    <h4 class="font-semibold text-lg mb-3 text-green-800">Timelines & Penalties (Clauses 16, 17)</h4>
+                    <ul class="space-y-4">
+                        <li><strong>Scheduled Commissioning Date (SCOD):</strong> 36 months from LoA or 37 months from NoA, whichever is earlier.</li>
+                        <li><strong>Minimum Commissioning:</strong> Must commission at least 80% of awarded capacity. Failure leads to disqualification.</li>
+                        <li><strong>Penalties for Delay:</strong> Staggered penalties apply for delays beyond SCOD, including encashment of the Commissioning PBG and additional financial penalties on a per-day basis.</li>
+                        <li><strong>Operational Life & Penalties:</strong> Must operate for 25 years. Continuous non-operation beyond 6 months triggers penalties, including encashment of the Operational PBG. After 12 months, all benefits can be revoked and recovered.</li>
+                    </ul>`,
+                'Financials': `
+                    <h4 class="font-semibold text-lg mb-3 text-green-800">Financial Guarantees & Eligibility (Clauses 26, 27, 45)</h4>
+                    <ul class="space-y-4">
+                        <li><strong>Net Worth Requirement:</strong> Bidders must meet a minimum Net Worth (e.g., 45 Cr/kTPA for a project with 100% in-state RE), capped at 4500 Cr per bidder.</li>
+                        <li><strong>Earnest Money Deposit (EMD):</strong> 0.75 Cr/kTPA required with the bid.</li>
+                        <li><strong>Commissioning PBG (PBG-C):</strong> 1.75 Cr/kTPA of allocated capacity, submitted within 15 days of NoA.</li>
+                        <li><strong>Operational PBG (PBG-O):</strong> 1% of the final project FCI, submitted within 15 days of CoD, valid for 10 years.</li>
+                    </ul>`
+            };
+
+            const secData = [
+                { range: '< 46', quotient: 1.20 },
+                { range: '≥ 46 & < 47', quotient: 1.16 },
+                { range: '≥ 47 & < 48', quotient: 1.12 },
+                { range: '≥ 48 & < 49', quotient: 1.08 },
+                { range: '≥ 49 & < 50', quotient: 1.04 },
+                { range: '≥ 50 & < 51', quotient: 1.00 },
+                { range: '≥ 51 & < 52', quotient: 0.96 },
+                { range: '≥ 52 & < 53', quotient: 0.92 },
+                { range: '≥ 53 & < 54', quotient: 0.88 },
+                { range: '≥ 54 & < 55', quotient: 0.84 },
+                { range: '≥ 55 & ≤ 56', quotient: 0.80 },
+                { range: '> 56', quotient: 0.00 }
+            ];
+
+            // Initialize accordion from previous version
+            const accordionContainer = document.getElementById('accordion-container');
+            if (accordionContainer) { // Check if element exists in the new HTML
+                incentivesData.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    div.innerHTML = `
+                        <button class="accordion-button w-full text-left p-4 flex justify-between items-center font-semibold text-gray-700">
+                            <span>${item.title}</span>
+                            <span class="transform transition-transform duration-300">▼</span>
+                        </button>
+                        <div class="accordion-content px-4">
+                            <p class="py-4 text-gray-600 border-t">${item.content}</p>
+                        </div>
+                    `;
+                    accordionContainer.appendChild(div);
+                });
+
+                accordionContainer.addEventListener('click', (e) => {
+                    const button = e.target.closest('.accordion-button');
+                    if (button) {
+                        const content = button.nextElementSibling;
+                        const arrow = button.querySelector('span:last-child');
+                        button.classList.toggle('open');
+                        if (content.style.maxHeight) {
+                            content.style.maxHeight = null;
+                            arrow.style.transform = 'rotate(0deg)';
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + 'px';
+                            arrow.style.transform = 'rotate(180deg)';
+                        }
+                    }
+                });
+            }
+
+            // Initialize compliance tabs from previous version
+            const complianceTabsContainer = document.getElementById('compliance-tabs');
+            const complianceContentContainer = document.getElementById('compliance-content');
+            let currentComplianceTab = 'Performance'; // Track active tab for LLM input
+
+            if (complianceTabsContainer && complianceContentContainer) {
+                Object.keys(complianceData).forEach((key, index) => {
+                    const button = document.createElement('button');
+                    button.className = `whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${index === 0 ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`;
+                    button.textContent = key;
+                    button.dataset.target = key;
+                    complianceTabsContainer.appendChild(button);
+                });
+                
+                const showComplianceContent = (target) => {
+                    // Update content only if it's different from the current content in the new design
+                    // The new design uses static content for these sections, so this part is adapted.
+                    // For the LLM checklist, the LLM will generate content based on the *original* complianceData.
+                    // This part of the code is kept to manage `currentComplianceTab` for the LLM.
+                    currentComplianceTab = target; 
+                    document.querySelectorAll('#compliance-tabs button').forEach(btn => {
+                        if (btn.dataset.target === target) {
+                            btn.className = 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-purple-500 text-purple-600';
+                        } else {
+                            btn.className = 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+                        }
+                    });
+                };
+                
+                complianceTabsContainer.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        showComplianceContent(e.target.dataset.target);
+                    }
+                });
+                // Initial content for compliance section (from new design, not dynamic tabs)
+                // The complianceData object is still used for the LLM prompt.
+                complianceContentContainer.innerHTML = complianceData['Performance']; // Set initial content
+                showComplianceContent('Performance'); // Set initial active tab state for LLM
+            }
+
+
+            // Chart.js initialization for new charts
+            const COLORS = {
+                blue: '#003f5c',
+                purple: '#665191',
+                magenta: '#d45087',
+                pink: '#f95d6a',
+                orange: '#ff7c43',
+                yellow: '#ffa600',
+                lightBlue: '#2f4b7c',
+                lightPurple: '#a05195',
+                bgBlue: 'rgba(0, 63, 92, 0.2)',
+                bgPurple: 'rgba(102, 81, 145, 0.2)',
+                bgMagenta: 'rgba(212, 80, 135, 0.2)',
+                bgPink: 'rgba(249, 93, 106, 0.2)',
+            };
+            
+            const wrapLabel = (label) => {
+                if (label.length <= 16) {
+                    return label;
+                }
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = '';
+                for (const word of words) {
+                    if ((currentLine + word).length > 16) {
+                        lines.push(currentLine.trim());
+                        currentLine = '';
+                    }
+                    currentLine += word + ' ';
+                }
+                lines.push(currentLine.trim());
+                return lines;
+            };
+
+            const tooltipTitleCallback = (tooltipItems) => {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) {
+                  return label.join(' ');
+                } else {
+                  return label;
+                }
+            };
+
+            const defaultChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#4a5568',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: tooltipTitleCallback
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#4a5568' },
+                        grid: { color: '#e2e8f0' }
+                    },
+                    x: {
+                        ticks: { color: '#4a5568' },
+                        grid: { display: false }
+                    }
+                }
+            };
+
+            new Chart(document.getElementById('capexChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Anchor Units', 'Experimental Anchor Units'],
+                    datasets: [{
+                        label: 'CAPEX Subsidy %',
+                        data: [30, 15],
+                        backgroundColor: [COLORS.blue, COLORS.purple],
+                        borderColor: '#fff',
+                        borderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#4a5568' } },
+                        tooltip: {
+                            callbacks: {
+                                title: tooltipTitleCallback,
+                                label: (context) => `${context.label}: ${context.raw}%`
+                            }
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('opexChart'), {
+                type: 'bar',
+                data: {
+                    labels: [wrapLabel('Electricity Duty Exemption (15 Yrs)'), wrapLabel('Transmission & Wheeling Charge Exemption (20 Yrs)')],
+                    datasets: [{
+                        label: 'Exemption %',
+                        data: [100, 50],
+                        backgroundColor: [COLORS.magenta, COLORS.pink],
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    ...defaultChartOptions,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: tooltipTitleCallback,
+                                label: (context) => `Exemption: ${context.raw}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            max: 100,
+                            ticks: { color: '#4a5568' },
+                            grid: { color: '#e2e8f0' }
+                        },
+                        y: {
+                            ticks: { color: '#4a5568' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('financialQuotientChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Bidder A', 'Bidder B (Winner)', 'Bidder C'],
+                    datasets: [{
+                        label: 'Normalized Subsidy Quote (%)',
+                        data: [83.48, 74.30, 78.96],
+                        backgroundColor: COLORS.bgPurple,
+                        borderColor: COLORS.purple,
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    ...defaultChartOptions,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: tooltipTitleCallback,
+                                label: (context) => `Normalized Quote: ${context.raw}%`
+                            }
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('performanceQuotientChart'), {
+                type: 'line',
+                data: {
+                    labels: ['<46', '48-49', '50-51', '52-53', '54-55', '>56'],
+                    datasets: [{
+                        label: 'Performance Score',
+                        data: [1.20, 1.08, 1.00, 0.92, 0.84, 0.00],
+                        fill: true,
+                        borderColor: COLORS.pink,
+                        backgroundColor: COLORS.bgPink,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    ...defaultChartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1.4,
+                            ticks: { color: '#4a5568' },
+                            grid: { color: '#e2e8f0' },
+                            title: { display: true, text: 'Performance Score', color: '#4a5568' }
+                        },
+                        x: {
+                            ticks: { color: '#4a5568' },
+                            grid: { display: false },
+                            title: { display: true, text: 'Specific Energy Consumption (kWh/kg)', color: '#4a5568' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (tooltipItems) => `SEC Range: ${tooltipItems[0].label}`,
+                                label: (context) => `Score: ${context.raw.toFixed(2)}`
+                            }
+                        }
+                    }
+                }
+            });
+            
+            new Chart(document.getElementById('lvaChart'), {
+                type: 'bar',
+                data: {
+                    labels: [wrapLabel('Local Value Addition (LVA)'), wrapLabel('Min. Domestic Sales (Anchor)'), wrapLabel('Min. Annual Production (for CAPEX)')],
+                    datasets: [{
+                        label: 'Requirement %',
+                        data: [55, 50, 90],
+                        backgroundColor: [COLORS.blue, COLORS.lightBlue, COLORS.purple],
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    ...defaultChartOptions,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: tooltipTitleCallback,
+                                label: (context) => `Requirement: ${context.raw}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            max: 100,
+                            ticks: { color: '#4a5568' },
+                            grid: { color: '#e2e8f0' }
+                        },
+                        y: {
+                            ticks: { color: '#4a5568' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+
+            const calculateBtn = document.getElementById('calculate-btn');
+            if (calculateBtn) {
+                calculateBtn.addEventListener('click', calculateBid);
+            }
+
+            function getPerformanceQuotient(sec) {
+                const found = secData.find(item => {
+                    if (item.range.startsWith('<')) return sec < parseFloat(item.range.substring(2));
+                    if (item.range.startsWith('>')) return sec > parseFloat(item.range.substring(2));
+                    const parts = item.range.replace('≥', '').replace('≤', '').split('&').map(p => p.trim());
+                    return sec >= parseFloat(parts[0]) && sec <= parseFloat(parts[1]);
+                });
+                return found ? found.quotient : 0;
+            }
+
+            function calculateBid() {
+                const projectType = document.getElementById('calc-projectType').value;
+                const ghCapacity = parseFloat(document.getElementById('calc-ghCapacity').value) || 0;
+                const reShare = parseFloat(document.getElementById('calc-reShare').value) || 0;
+                const fciGh = Math.min(parseFloat(document.getElementById('calc-fciGh').value) || 0, 65);
+                const fciRe = Math.min(parseFloat(document.getElementById('calc-fciRe').value) || 0, 159);
+                const subsidyDemanded = Math.min(parseFloat(document.getElementById('calc-subsidyDemanded').value) || 0, 100);
+                const secQuoted = parseFloat(document.getElementById('calc-secQuoted').value) || 0;
+
+                const quotedFciPerKtpa = fciGh + (fciRe * (reShare / 100));
+                const overallSubsidyCapPerKtpa = 65 + (159 * (reShare / 100));
+                
+                const normalizedSubsidyQuoteRatio = (quotedFciPerKtpa * (subsidyDemanded / 100)) / overallSubsidyCapPerKtpa;
+                const performanceQuotient = getPerformanceQuotient(secQuoted);
+                
+                const financialQuotient = 1; // Assuming this bidder is the lowest for this calculation
+                const selectionParameter = (financialQuotient * 0.8) + (performanceQuotient * 0.2);
+
+                const baseIncentivePerKtpa = (subsidyDemanded / 100) * quotedFciPerKtpa;
+                const totalApplicableSubsidy = baseIncentivePerKtpa * ghCapacity;
+
+                const nonCapexMaxCapPercent = 70;
+                const capexMaxCapPercent = projectType === 'anchor' ? 30 : 15;
+                const nonCapexMaxCap = (nonCapexMaxCapPercent / 100) * quotedFciPerKtpa * ghCapacity;
+                const capexMaxCap = (capexMaxCapPercent / 100) * quotedFciPerKtpa * ghCapacity;
+
+                let allocatedNonCapex = Math.min(totalApplicableSubsidy, nonCapexMaxCap);
+                let allocatedCapex = Math.max(0, totalApplicableSubsidy - allocatedNonCapex);
+                allocatedCapex = Math.min(allocatedCapex, capexMaxCap);
+
+                document.getElementById('res-normalized').textContent = `${(normalizedSubsidyQuoteRatio * 100).toFixed(2)}%`;
+                document.getElementById('res-performance').textContent = performanceQuotient.toFixed(2);
+                document.getElementById('res-selection').textContent = selectionParameter.toFixed(4);
+                document.getElementById('res-fci').textContent = `${quotedFciPerKtpa.toFixed(2)} Cr`;
+                document.getElementById('res-total-subsidy').textContent = `${totalApplicableSubsidy.toFixed(2)} Cr`;
+                document.getElementById('res-capex-subs-calc').textContent = `${allocatedCapex.toFixed(2)} Cr`;
+                document.getElementById('res-noncapex-subs-calc').textContent = `${allocatedNonCapex.toFixed(2)} Cr`;
+                
+                document.getElementById('calculator-results').classList.remove('hidden');
+            }
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // Removed all LLM Integration event listeners and calls
+        });
+    </script>
+</body>
+</html>
